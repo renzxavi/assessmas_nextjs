@@ -1,7 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react'; // 👈 Import useEffect
+import { useState, useEffect } from 'react';
 
-const MESSAGE_DURATION = 3000; // 3 seconds in milliseconds
+const MESSAGE_DURATION = 3000;
 
 export default function SubscribeForm() {
   const [email, setEmail] = useState('');
@@ -9,22 +9,16 @@ export default function SubscribeForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // --- useEffect para mensajes de éxito ---
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => {
-        setSuccess('');
-      }, MESSAGE_DURATION);
+      const timer = setTimeout(() => setSuccess(''), MESSAGE_DURATION);
       return () => clearTimeout(timer);
     }
   }, [success]);
 
-  // --- useEffect para mensajes de error ---
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => {
-        setError('');
-      }, MESSAGE_DURATION);
+      const timer = setTimeout(() => setError(''), MESSAGE_DURATION);
       return () => clearTimeout(timer);
     }
   }, [error]);
@@ -54,11 +48,7 @@ export default function SubscribeForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        // Leer correctamente los errores de FastAPI
-        const errorMsg =
-          data.detail?.errors?.email?.[0] ||
-          data.detail?.message ||
-          'Error subscribing';
+        const errorMsg = data.detail?.errors?.email?.[0] || data.detail || 'Error subscribing';
         throw new Error(errorMsg);
       }
 
@@ -81,7 +71,6 @@ export default function SubscribeForm() {
           Get notified when we launch!
         </p>
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3 w-full">
           <input
             type="email"
@@ -101,7 +90,6 @@ export default function SubscribeForm() {
           </button>
         </form>
 
-        {/* Mensajes */}
         {success && (
           <p className="text-green-600 mt-4 text-sm font-medium text-center">
             {success}

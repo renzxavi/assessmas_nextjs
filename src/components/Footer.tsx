@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="w-full bg-gradient-to-r from-orange-400 to-orange-300 text-white py-4 mt-auto shadow-md">
+    <footer className="w-full bg-gradient-to-r from-orange-400 to-orange-300 text-white py-1 mt-auto shadow-md">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 text-sm">
         {/* Texto principal */}
         <p className="mb-3 md:mb-0 text-center md:text-left">

@@ -6,15 +6,17 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
-  // Función de logout
+  // Función de logout - Protegida contra errores de hidratación
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+    }
     router.push('/auth');
   };
 
   return (
-    <header className="w-full bg-gradient-to-r from-orange-400 to-orange-300 text-white py-3 shadow-md fixed top-0 z-50">
+    <header className="w-full bg-gradient-to-r from-orange-400 to-orange-300 text-white py-2 shadow-md fixed top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4">
         {/* Logo */}
         <h1 className="text-lg md:text-2xl font-semibold tracking-tight">
@@ -61,15 +63,15 @@ export default function Header() {
             Reports
           </a>
 
-          {/* Botón logout solo icono */}
+          {/* NUEVO DISEÑO: Botón logout solo icono (Desktop) */}
           <button
             onClick={handleLogout}
-            title="log out"
-            className="bg-white/90 text-orange-500 p-2 rounded-full hover:bg-white transition-all shadow-sm hover:shadow-md"
+            title="Log In"
+            className="text-white hover:text-orange-100 p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -85,9 +87,12 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* Menú móvil desplegable */}
+      {/* MENÚ MÓVIL DESPLEGABLE CON ANIMACIÓN */}
       {menuOpen && (
-        <div className="md:hidden bg-orange-100 text-gray-800 flex flex-col items-start px-6 py-3 shadow-md">
+        <div 
+          className="md:hidden bg-orange-100 text-gray-800 flex flex-col items-start px-6 py-3 shadow-lg 
+                     animate-slide-down" 
+        >
           <a
             href="/home"
             onClick={() => setMenuOpen(false)}
@@ -110,14 +115,15 @@ export default function Header() {
             Reports
           </a>
 
-          {/* Logout solo icono en móvil */}
+          {/* NUEVO DISEÑO: Botón de Logout con texto y color de acento (Móvil) */}
           <button
             onClick={() => {
               handleLogout();
               setMenuOpen(false);
             }}
-            title="log out"
-            className="mt-2 bg-white/90 items-center text-orange-500 p-2 rounded-full hover:bg-white transition-all shadow-sm hover:shadow-md">
+            title="Log In"
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors focus:outline-none focus:ring-4 focus:ring-orange-300"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
@@ -132,6 +138,7 @@ export default function Header() {
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-8V7"
               />
             </svg>
+            Log In
           </button>
         </div>
       )}

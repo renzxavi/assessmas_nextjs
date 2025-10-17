@@ -18,14 +18,12 @@ export default function AuthForm() {
     setError('');
     setLoading(true);
 
-    // 🔒 Validación básica de email
     if (!email.includes('@')) {
       setError('Please enter a valid email address.');
       setLoading(false);
       return;
     }
 
-    // 🔒 Validación de contraseñas en registro
     if (mode === 'register') {
       if (password !== confirmPassword) {
         setError('Passwords do not match.');
@@ -41,51 +39,52 @@ export default function AuthForm() {
       }
     }
 
-    const endpoint =
-      mode === 'login'
-        ? 'http://127.0.0.1:8000/api/login'
-        : 'http://127.0.0.1:8000/api/register';
+    const endpoint = mode === 'login'
+      ? 'http://127.0.0.1:8000/api/login'
+      : 'http://127.0.0.1:8000/api/register';
 
     try {
-      const body =
-        mode === 'login'
-          ? { email, password }
-          : {
-              name,
-              surname,
-              email,
-              password,
-              password_confirmation: confirmPassword, // Laravel espera este campo
-            };
+      const body = mode === 'login'
+        ? { email, password }
+        : { name, surname, email, password, password_confirmation: confirmPassword };
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(body),
       });
 
       const data = await res.json();
 
-      // ✅ Manejo de errores con tipado seguro
       if (!res.ok) {
+        // Extraer el primer error del formato del backend
         let firstError = 'Server error.';
-        if (data.errors && typeof data.errors === 'object') {
-          const firstKey = Object.keys(data.errors)[0];
-          if (firstKey && Array.isArray(data.errors[firstKey])) {
-            firstError = data.errors[firstKey][0];
+        
+        // El backend devuelve: { detail: { errors: { email: ["mensaje"] } } }
+        if (data.detail?.errors && typeof data.detail.errors === 'object') {
+          const firstKey = Object.keys(data.detail.errors)[0];
+          if (firstKey && Array.isArray(data.detail.errors[firstKey])) {
+            firstError = data.detail.errors[firstKey][0];
           }
+        } else if (data.detail) {
+          firstError = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
         } else if (data.message) {
           firstError = data.message;
         }
-        throw new Error(firstError);
+        
+        setError(firstError);
+        setLoading(false);
+        return;
       }
 
-      // ✅ Guardar token y redirigir
+      // Guardar token y redirigir
       localStorage.setItem('token', data.access_token || 'fake_token');
       window.location.href = '/home';
     } catch (err: any) {
-      setError(err.message || 'Error de conexión.');
-    } finally {
+      setError(err.message || 'Connection error.');
       setLoading(false);
     }
   };
@@ -97,9 +96,8 @@ export default function AuthForm() {
           {mode === 'login' ? 'Sign In' : 'Create Your Account'}
         </h1>
         <p className="text-base text-gray-600 mb-6 leading-relaxed">
-          {mode === 'login' ? 'We\'re glad you\'re here!' : 'Join us today!'}
+          {mode === 'login' ? "We're glad you're here!" : 'Join us today!'}
         </p>
-
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
           {mode === 'register' && (
@@ -168,24 +166,17 @@ export default function AuthForm() {
             disabled={loading}
             className="bg-orange-400 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-orange-500 transition-colors w-full mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading
-              ? 'Processing...'
-              : mode === 'login'
-              ? 'Log In'
-              : 'Create Account'}
+            {loading ? 'Processing...' : mode === 'login' ? 'Log In' : 'Create Account'}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
           {mode === 'login' ? (
             <>
-              Don’t have an account?{' '}
+              Don't have an account?{' '}
               <span
                 className="text-orange-500 cursor-pointer font-semibold hover:underline transition-colors"
-                onClick={() => {
-                  setMode('register');
-                  setError('');
-                }}
+                onClick={() => { setMode('register'); setError(''); }}
               >
                 Create your account
               </span>
@@ -195,10 +186,7 @@ export default function AuthForm() {
               Already have an account?{' '}
               <span
                 className="text-orange-500 cursor-pointer font-semibold hover:underline transition-colors"
-                onClick={() => {
-                  setMode('login');
-                  setError('');
-                }}
+                onClick={() => { setMode('login'); setError(''); }}
               >
                 Sign In
               </span>
